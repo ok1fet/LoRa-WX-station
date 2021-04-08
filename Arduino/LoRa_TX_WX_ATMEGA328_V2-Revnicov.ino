@@ -36,7 +36,6 @@ String Outstring="";
 #include <Adafruit_BME280.h>
 #define SEALEVELPRESSURE_HPA (1013) 
 Adafruit_BME280 bme;
-float SLpressure_hPa;
 float wind, temp, tempf, humi, alti, pres;
 
 // wind speed aneometer
@@ -165,7 +164,7 @@ AverageAngle Smer(AverageAngle::DEGREES);
   temp = bme.readTemperature();
   humi = bme.readHumidity();
   alti = bme.readAltitude(SEALEVELPRESSURE_HPA);
-  pres = (bme.readPressure()/100.0F)+52;  // upravit + vyska v metrech deleno 10
+  pres = (bme.readPressure()/100.0F)+52;  // upravit 520AMSL + vyska v metrech deleno 10 = 52
   wda = Smer.getAverage();
   wsa = WindSpeedAvg;
   wsm = WindSpeedMax;
@@ -207,7 +206,7 @@ AverageAngle Smer(AverageAngle::DEGREES);
   Serial.println("m");
 
 // odeslani dat pres LoRa 
-   Outstring = "OK1FET-14>APRS:!5011.21N/01347.39E_";  // upravit
+   Outstring = "OK1XYZ-1>APRS:!5000.00N/01350.00E_";  // upravit
    if(wda<99) { Outstring += "0"; }
    if(wda<9)  { Outstring += "0"; }
    Outstring += String(wda,0);
@@ -296,7 +295,7 @@ void mereniWindSpeed() {
   attachInterrupt(digitalPinToInterrupt(SensorPin), countup, RISING);
   delay(1000 * RecordTime);
   detachInterrupt(digitalPinToInterrupt(SensorPin));
-  WindSpeed = (float)InterruptCounter / (float)RecordTime * 0.4973;
+  WindSpeed = (float)InterruptCounter / (float)RecordTime * 0.4973; // /Convert mph
 //WindSpeed = ((float)InterruptCounter / (float)3 * 2.4) / 2; //Convert counts & time to km/h
 }
 
@@ -345,8 +344,6 @@ P044  The rain since the local midnight (in hundreths of an inch) -- this can be
 h50 The humidity in percent. '00' => 100%. -- this can be omitted.
 b10245  The barometric pressure in tenths of millbars -- this can be omitted. This is a corrected pressure and not the actual (station) pressure as measured at your weatherstation. The pressure is adjusted according to altimeter rules -- i.e. the adjustment is purely based on station elevation and does not include temperature compensation.
  
-OK1FET-5>APN100,TCPIP*:=5020.55N/01419.98E_045/002g...t045r...p...P000h55b.....eESP8266
- 
 ANT 433MHz
 https://quadmeup.com/3d-printed-433mhz-moxon-antenna-with-arm-and-snap-mount/
 https://www.thingiverse.com/thing:2068392/files
@@ -363,15 +360,5 @@ inspirace
 https://www.instructables.com/Solar-Powered-WiFi-Weather-Station-V30/?utm_source=newsletter&utm_medium=email
 
 prevest WGS84  N 50°10.84313', E 13°53.28152'zapsat jako 5010.84N/01353.28E
-Cukrak    = 4956.28N/01420.12E 
-Stankovka = 4958.11N/01419.50E
-Malesice  = 5004.91N/01431.53E
-Msec      = 5010.84N/01353.28E
-Revnicov  = 5011.21N/01347.39E
-
-chyba
-2021-03-28 20:03:24 CEST: OK1FET-14>APRS,qAS,OK0HCS-1:!4958.11N/01419.50E_090/000g000t044h47b10010_BATT=3.97V SNR=-18dB RSSI=-83db
-2021-03-28 20:08:34 CEST: OK1FET-14>APRS,qAS,OK0HCS-1:!4958.11N/01419.50E_0100/000g000t043h47b10010_BATT=3.97V SNR=-18dB RSSI=-83db
-2021-03-28 20:24:05 CEST: OK1FET-14>APRS,qAS,OK0HCS-1:!4958.11N/01419.50E_180/000g000t043h48b10010_BATT=3.97V SNR=-18dB RSSI=-83db
 
  */
