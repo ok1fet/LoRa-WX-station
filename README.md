@@ -6,5 +6,5 @@
 <p> Data se ukládají na cloudové uložiště na serveru www.aprs.fi.</p>
 <p>Pro měření rychlosti a směru větru jsou použita čidla k meteostanici WH1080, která jsou na našem trhu dostupná jako náhradní díly za rozumný peníz.</p>
 <p> </p>
-<img src="https://github.com/ok1fet/LoRa-WX-station/blob/main/pictures/LoRaWX01.jpg" width="720" height="500" alt="schema" />
+<img src="https://github.com/ok1fet/LoRa-WX-station/blob/main/pictures/LoRaWX1a.jpg" width="720" height="500" alt="schema" />
 </p>
