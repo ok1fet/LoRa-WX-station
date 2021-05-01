@@ -8,3 +8,4 @@
 <p> </p>
 <img src="https://github.com/ok1fet/LoRa-WX-station/blob/main/pictures/LoRaWX1a.jpg" width="720" height="500" alt="schema" />
 </p>
+<p>Meteo stanice Řevničov <a href="www.revnicov.wz.cz">link.</a> www.aprs.fi/ok1fet-14.</a></p>
