@@ -10,5 +10,5 @@
 </p>
 
 <p>Meteorologická stanice <a href="http://cukrak.wz.cz/"> Cukrák.</a> Zdrojová data na www.aprs.fi/ok1fet-4.</a></p>
-<p>Meteorologická stanice <a href="http://jevineves.wz.cz/"> Jeviněves.</a> Zdrojová data na www.aprs.fi/ok1fet-5.</a></p>
+<p>Meteorologická stanice <a href="http://jevinka.wz.cz/"> Jeviněves.</a> Zdrojová data na www.aprs.fi/ok1fet-5.</a></p>
 <p>Meteorologická stanice <a href="http://revnicov.wz.cz/"> Řevničov.</a> Zdrojová data na www.aprs.fi/ok1fet-14.</a></p>
