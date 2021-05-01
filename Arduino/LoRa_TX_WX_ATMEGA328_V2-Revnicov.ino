@@ -14,17 +14,23 @@
  * SDA    A4
  * 
  */
-///////////////////////////////////////////////////////////
+//config/////////////////////////////////////////////////////////
+const char* station = "OK1FET-99>APRS:!5004.91N/01431.53E_"; // 
+float ELEVATION = 224; // viska metru nad morem
+float resistor1 = 90.97; // 90K pro 8,5V vstupni svorka 
+float resistor2 = 10.08;  // 10Kohm na GND
+//config/////////////////////////////////////////////////////////
+
 #include <LowPower.h>
-unsigned int PeriodeCounterSleep = 0; //3 kdyz je stejne jako "timer" spusti mereni v prvni cyklu
-unsigned int timer = 3;               //3 timer * 8 (SLEEP_8S) = cas buzeni ATMEGA328 sekundy 3 x 8=24sekund
-int pocetmereniAgregace = 11;         //11 kolik mereni nez se udela agragace dat cca 5minut
-unsigned int cyklus =0;               //11 kdyz je stejne jako "pocetmereniAgregace" spusti agregace v prvni cyklu
+unsigned int PeriodeCounterSleep = 0; // 2 kdyz je stejne jako "timer" spusti mereni v prvni cyklu
+unsigned int timer = 2;               // 2 timer * 8 (SLEEP_8S) = cas buzeni ATMEGA328 sekundy 2 x 8=16sekund
+int pocetmereniAgregace = 15;         //15 kolik mereni nez se udela agragace dat cca 5minut
+unsigned int cyklus = 0;              //15 kdyz je stejne jako "pocetmereniAgregace" spusti agregace v prvni cyklu
 
 //LoRa
 const byte lora_PNSS   = 4;  // 18 pin number where the NSS line for the LoRa device is connected.
 const byte lora_PReset = 5;  // 23 pin where LoRa device reset line is connected
-const byte PLED1 = 6;        // pin number for LED on Tracker
+const byte PLED1 = 6;        // pin number for LED on Tracker neni zapojeno
 #include <SPI.h>
 #include "LoRaTX.h"
 #include <Wire.h>
@@ -34,9 +40,8 @@ String Outstring="";
 // BME280
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
-#define SEALEVELPRESSURE_HPA (1013) 
 Adafruit_BME280 bme;
-float wind, temp, tempf, humi, alti, pres;
+float wind, temp, tempf, humi, pres, pres1;
 
 // wind speed aneometer
 float DataSpeed[30];  // pole pro data
@@ -48,11 +53,11 @@ float WindSpeed;
 int WindSpeedAvgA;
 int WindSpeedMaxA;
 float  wsm,wsa;
+volatile unsigned long ContactBounceTime; // Timer to avoid contact bounce in interrupt routine
 
 //wind direction smerova ruzice
 #include "Yamartino.h"
 Yamartino yamartino(2);   // pocet mereni za sekundu
-const int RecordTime = 3; // Define Measuring wind speed Time (Seconds)
 const int SensorPin = 2;  // Define Interrupt Pin (2 or 3 @ Arduino Uno)
 int i=0;
 
@@ -63,16 +68,14 @@ int wd;   // hodnota AD prevodniku
 int heading; // promena pro Yamartino knihovnu
 float wda;    // WindDirectoryArchiv
 float WindDirectoryAvg; // vystupni hodnota z AverageAngle
-int pinWindDir = A0;
+int pinWindDir = A0;//pin pro smer vetru
 
 //mereni baterie
 int voltPin = A1;
 float vcc;
 float predradnik;
 float adc;
-float resistor1 = 90.92;  // 66K pro 8,5V vstupni svorka 92k -0,2V Cukrak 90.94/9.889
-float resistor2 = 10.08;  // 10Kohm na GND
-float napetiCPU = 1.1;    // hodnoto napajeciho napeti uProcesoru analogReference(INTERNAL)1.1V
+float napetiCPU = 1.1;   // hodnoto napajeciho napeti uProcesoru analogReference(INTERNAL)1.1V
 
 char sentence[150];
 
@@ -81,7 +84,7 @@ void setup()
 {
   analogReference(INTERNAL);
   predradnik = resistor2 / (resistor1 + resistor2);
-  
+
   Serial.begin(9600);  
   Serial.println("start");// 
   delay(20);
@@ -90,13 +93,13 @@ void setup()
   bool bme_status;
   bme_status = bme.begin(0x76);  //address either 0x76 or 0x77
   if (!bme_status) {
-  Serial.print("No valid BME280 found"); }
+  Serial.println("No valid BME280 found"); }
 
   pinMode(lora_PReset, OUTPUT);     // RFM98 reset line
   digitalWrite(lora_PReset, LOW);   // Reset RFM98
   pinMode (lora_PNSS, OUTPUT);      // set the slaveSelectPin as an output:
   digitalWrite(lora_PNSS, HIGH);
-  pinMode(PLED1, OUTPUT);                                                          // for shield LED neni na pcb sciti pri TX
+  pinMode(PLED1, OUTPUT);                                                          // for shield LED neni na pcb sviti pri TX
   
   SPI.begin();                                                                     // initialize SPI:
   SPI.setClockDivider(SPI_CLOCK_DIV2);
@@ -120,11 +123,10 @@ void setup()
 void loop(){
   
   while(PeriodeCounterSleep < timer){
-  Serial.print("PeriodeCounterSleep++ ");
-  Serial.println(PeriodeCounterSleep);
+  Serial.println("+");
   delay(100);
-    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF); 
-    PeriodeCounterSleep++;
+  LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF); 
+  PeriodeCounterSleep++;
    }
 PeriodeCounterSleep = 0; 
 /*****************************************************************
@@ -163,8 +165,7 @@ AverageAngle Smer(AverageAngle::DEGREES);
   bme.takeForcedMeasurement();
   temp = bme.readTemperature();
   humi = bme.readHumidity();
-  alti = bme.readAltitude(SEALEVELPRESSURE_HPA);
-  pres = (bme.readPressure()/100.0F)+52;  // upravit 520AMSL + vyska v metrech deleno 10 = 52
+  pres = (bme.readPressure())/pow((1-ELEVATION/44330.0), 5.255)/10;// prepocet tlaku na hladinu more
   wda = Smer.getAverage();
   wsa = WindSpeedAvg;
   wsm = WindSpeedMax;
@@ -192,21 +193,23 @@ AverageAngle Smer(AverageAngle::DEGREES);
   Serial.print("Napeti            = ");
   Serial.print(vcc);
   Serial.println("V");
+  
   Serial.print("Temperature       = ");
   Serial.print(temp,1);
   Serial.println("°C");
-  Serial.print("Humidiy           = ");
+  
+  Serial.print("Humidity          = ");
   Serial.print(humi,0);
   Serial.println("%");
-  Serial.print("Pressure          = ");
-  Serial.print(pres,0);
+  pres1=pres/10;
+  Serial.print("Pressure to sea   = ");
+  Serial.print(pres1,1);
   Serial.println("hPa");
-  Serial.print("Altitude          = ");
-  Serial.print(alti,0);
-  Serial.println("m");
+  
+
 
 // odeslani dat pres LoRa 
-   Outstring = "OK1XYZ-1>APRS:!5000.00N/01350.00E_";  // upravit
+   Outstring = (station); 
    if(wda<99) { Outstring += "0"; }
    if(wda<9)  { Outstring += "0"; }
    Outstring += String(wda,0);
@@ -225,9 +228,8 @@ AverageAngle Smer(AverageAngle::DEGREES);
    Outstring += ("h");
    Outstring += String(humi,0);
    Outstring += ("b");
-   if(pres<999) { Outstring += "0"; }
+   if(pres<9999) { Outstring += "0"; }
    Outstring += String(pres,0);
-   Outstring += ("0");
    Outstring += ("_BATT=");
    Outstring += String(vcc,2);
    Outstring += ("V");
@@ -269,8 +271,8 @@ AverageAngle Smer(AverageAngle::DEGREES);
 /*****************************************************************
                  standardni mereni kazdych 20 sekund
 *****************************************************************/
-Serial.print(cyklus);
-Serial.println(" - standardni mereni kazdych 20 sekund");
+    Serial.print(cyklus);
+    Serial.println(" - standardni mereni kazdych 20 sekund");
     mereniWindSpeed();
     DataSpeed[cyklus]=(WindSpeed);// zapise hodnotu do pole DataSpeed
 
@@ -278,11 +280,13 @@ Serial.println(" - standardni mereni kazdych 20 sekund");
     yamartino.add(heading);
     DataSmer[cyklus] = (yamartino.averageHeading());// zapise hodnotu do pole DataSmer
 
-  Serial.print(WindSpeed,1); //Speed in m/s
-  Serial.println(" mph");
-  Serial.print(yamartino.averageHeading(),0);
-  Serial.println("°") ;
-  Serial.println("ulozeno do datoveho pole goto Sleeping...");
+    Serial.print(WindSpeed,1); //Speed in mph
+    Serial.println(" mph");
+    Serial.print(yamartino.averageHeading(),0);
+    Serial.println("°") ;
+    Serial.println("ulozeno do datoveho pole");
+    Serial.println("goto Sleeping...");
+    delay (100);
 
 
 cyklus++;
@@ -291,16 +295,19 @@ cyklus++;
                  mereni rychlosti vetru
 *****************************************************************/
 void mereniWindSpeed() {
-  InterruptCounter = 0;
-  attachInterrupt(digitalPinToInterrupt(SensorPin), countup, RISING);
-  delay(1000 * RecordTime);
-  detachInterrupt(digitalPinToInterrupt(SensorPin));
-  WindSpeed = (float)InterruptCounter / (float)RecordTime * 0.4973; // /Convert mph
-//WindSpeed = ((float)InterruptCounter / (float)3 * 2.4) / 2; //Convert counts & time to km/h
+    InterruptCounter = 0; // Set Rotations count to 0 ready for calculations 
+    attachInterrupt(digitalPinToInterrupt(SensorPin), countup, FALLING);
+    delay(3000);// Wait 3 seconds to average 
+    detachInterrupt(digitalPinToInterrupt(SensorPin));
+    WindSpeed = (float)InterruptCounter / 3 * 1.492;// prepocet na Mph
 }
 
 void countup() {
-  InterruptCounter++;
+if ((millis() - ContactBounceTime) > 15 ) { // debounce the switch contact. 
+InterruptCounter++;
+ContactBounceTime = millis(); 
+}   
+  
 }
 /*****************************************************************
                  mereni smeru vetru
@@ -344,6 +351,8 @@ P044  The rain since the local midnight (in hundreths of an inch) -- this can be
 h50 The humidity in percent. '00' => 100%. -- this can be omitted.
 b10245  The barometric pressure in tenths of millbars -- this can be omitted. This is a corrected pressure and not the actual (station) pressure as measured at your weatherstation. The pressure is adjusted according to altimeter rules -- i.e. the adjustment is purely based on station elevation and does not include temperature compensation.
  
+OK1FET-5>APN100,TCPIP*:=5020.55N/01419.98E_045/002g...t045r...p...P000h55b.....eESP8266
+ 
 ANT 433MHz
 https://quadmeup.com/3d-printed-433mhz-moxon-antenna-with-arm-and-snap-mount/
 https://www.thingiverse.com/thing:2068392/files
@@ -355,6 +364,9 @@ https://ok1kvk.cz/clanek/2017/LF33-aneb-ctete-datasheety/
 Lithium Battery charging tp4056
 https://www.buildcircuit.com/how-to-use-micro-usb-5v-1a-lithium-battery-charging-board-charger-module/
 http://jimlaurwilliams.org/wordpress/?p=4731
+
+bme280 how AMSL
+https://www.meteocercal.info/forum/Thread-How-to-get-the-sea-level-pressure-with-BMP280
 
 inspirace
 https://www.instructables.com/Solar-Powered-WiFi-Weather-Station-V30/?utm_source=newsletter&utm_medium=email
