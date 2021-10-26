@@ -7,7 +7,7 @@
 <p> Data se ukládají na cloudové uložiště na serveru www.aprs.fi.</p>
 <p>Pro měření rychlosti a směru větru jsou použita čidla k meteostanici WH1080, která jsou na našem trhu dostupná jako náhradní díly za rozumný peníz.</p>
 <p> </p>
-<img src="https://github.com/ok1fet/LoRa-WX-station/blob/main/pictures/LoRaWX1b.jpg" width="720" height="500" alt="schema" />
+<img src="https://github.com/ok1fet/LoRa-WX-station/blob/main/pictures/LoRaWX01b.jpg" width="720" height="500" alt="schema" />
 </p>
 
 <p>Meteorologická stanice <a href="http://cukrak.wz.cz/"> Cukrák.</a> Zdrojová data na www.aprs.fi/ok1fet-4.</a></p>
