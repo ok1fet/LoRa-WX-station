@@ -1,9 +1,8 @@
 
 <h1>LoRa-WX-station</h1>
 <p>Záměr bylo vytvořit jednoduchou malou meteosondu, která bude levná tak, aby ji bylo možné bez obav na kopci přidělat na strom :)</p>
-<p>Informace ze sondy mají sloužit pro piloty paraglidingu, které zajímá hlavně směr a rychlost větru. Proto byla programu věnována značná pozornost.</p>
-<p>Měří probíhá každých 20 sekundách. Data se agregují po 5 minutách kde se navíc spočítá průměrná hodnota vyhodnotí se nárazy větru./p>
-<p>Směr větru se měří <a href="https://en.wikipedia.org/wiki/Yamartino_method">Yamartino metodou.</a> </a></p>
+<p>Informace ze sondy mají sloužit pro piloty paraglidingu, které zajímá hlavně směr a rychlost větru. Proto byla programu věnována značná pozornost. Měří probíhá každých 20 sekundách. Data se agregují po 5 minutách kde se navíc spočítá průměrná hodnota vyhodnotí se nárazy větru.
+Směr větru se měří <a href="https://en.wikipedia.org/wiki/Yamartino_method">Yamartino metodou.</a></p>
 <p> Data se ukládají na cloudové uložiště na serveru www.aprs.fi.</p>
 <p>Pro měření rychlosti a směru větru jsou použita čidla k meteostanici WH1080, která jsou na našem trhu dostupná jako náhradní díly za rozumný peníz.</p>
 <p> </p>
