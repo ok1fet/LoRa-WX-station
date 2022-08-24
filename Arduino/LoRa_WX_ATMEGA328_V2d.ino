@@ -15,7 +15,7 @@
  * 
  */
 ///////////////////////////////////////////////////////////
-#include "config.h"
+//#include "config.h"
 #include <LowPower.h>
 unsigned int PeriodeCounterSleep = 0; // 2 kdyz je stejne jako "timer" spusti mereni v prvni cyklu
 unsigned int timer = 2;               // 2 timer * 8 (SLEEP_8S) = cas buzeni ATMEGA328 sekundy 2 x 8=16sekund
