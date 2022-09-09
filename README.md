@@ -11,3 +11,5 @@
 <p>Meteorologická stanice <a href="http://cukrak.wz.cz/"> Cukrák.</a> Zdrojová data na www.aprs.fi/ok1fet-4.</a></p>
 <p>Meteorologická stanice <a href="http://jevinka.wz.cz/"> Jeviněves.</a> Zdrojová data na www.aprs.fi/ok1fet-5.</a></p>
 <p>Meteorologická stanice <a href="http://revnicov.wz.cz/"> Řevničov.</a> Zdrojová data na www.aprs.fi/ok1fet-14.</a></p>
+<p>Moxon antena na 433MHz <a href="https://www.thingiverse.com/thing:2068392/files"> Řevničov.</a> Zdrojová data pro 3D printer na Thingiverse.</a></p>
+
